@@ -450,6 +450,8 @@ export interface SandpackInternalOptions<
   id?: string;
   logLevel?: SandpackLogLevel;
   bundlerURL?: string;
+  cacheUrl?: string;
+  sandboxId?: string;
   startRoute?: string;
   skipEval?: boolean;
   fileResolver?: FileResolver;

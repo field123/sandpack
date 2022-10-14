@@ -353,6 +353,8 @@ export type SandpackMessage = BaseSandpackMessage &
         reactDevTools?: ReactDevToolsMode;
         logLevel?: SandpackLogLevel;
         customNpmRegistries?: NpmRegistry[];
+        sandboxId?: string;
+        cacheUrl?: string;
       }
     | {
         type: "refresh";

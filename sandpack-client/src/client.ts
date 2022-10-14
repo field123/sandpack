@@ -79,6 +79,16 @@ export interface ClientOptions {
   reactDevTools?: ReactDevToolsMode;
 
   /**
+   * Provide url for a custom cache service
+   */
+  cacheUrl?: string;
+
+  /**
+   * Unique id used to perform caching
+   */
+  sandboxId?: string;
+
+  /**
    * The custom private npm registry setting makes it possible
    * to retrieve npm packages from your own npm registry.
    */
@@ -168,7 +178,12 @@ export class SandpackClient {
 
     this.setLocationURLIntoIFrame();
 
-    this.iframeProtocol = new IFrameProtocol(this.iframe, this.bundlerURL);
+    console.log('client - content window after set: ', this.iframe.contentWindow)
+
+    const parsedBundlerUrl = new URL(this.bundlerURL)
+    const origin = this.options.sandboxId ? `${parsedBundlerUrl.protocol}//${this.options.sandboxId}.${parsedBundlerUrl.host}` : this.bundlerURL
+
+    this.iframeProtocol = new IFrameProtocol(this.iframe, origin);
 
     this.unsubscribeGlobalListener = this.iframeProtocol.globalListen(
       (mes: SandpackMessage) => {
@@ -227,11 +242,18 @@ export class SandpackClient {
   }
 
   public setLocationURLIntoIFrame(): void {
+    const parsedBundlerUrl = new URL(this.bundlerURL)
+    const base = this.options.sandboxId ? `${parsedBundlerUrl.protocol}//${this.options.sandboxId}.${parsedBundlerUrl.host}` : this.bundlerURL
     const urlSource = this.options.startRoute
-      ? new URL(this.options.startRoute, this.bundlerURL).toString()
-      : this.bundlerURL;
+      ? new URL(this.options.startRoute, base).toString()
+      : base;
 
-    this.iframe.contentWindow?.location.replace(urlSource);
+    // const urlSource = this.options.startRoute
+    //     ? new URL(this.options.startRoute, this.bundlerURL).toString()
+    //     : this.bundlerURL;
+    console.log('client - about to set iframe location replace: ', urlSource)
+    this.iframe.contentWindow?.location.replace(`${urlSource}`);
+    console.log('client - url and contentWindow: ', urlSource, this.iframe.contentWindow)
   }
 
   cleanup(): void {
@@ -296,9 +318,11 @@ export class SandpackClient {
       }),
       {}
     );
-
+    console.log('client - values of this.options before dispatch compile: ', this.options)
     this.dispatch({
       type: "compile",
+      sandboxId: this.options.sandboxId,
+      cacheUrl: this.options.cacheUrl,
       codesandbox: true,
       version: 3,
       isInitializationCompile,

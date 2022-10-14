@@ -43,10 +43,11 @@ export class IFrameProtocol {
   // Sends the channelId and triggers an iframeHandshake promise to resolve,
   // so the iframe can start listening for messages (based on the id)
   register(): void {
+    console.log('client - registering iframe protocol')
     if (!this.frameWindow) {
       return;
     }
-
+    console.log('client - sending message for register-frame: ', this.origin, document.location.origin)
     this.frameWindow.postMessage(
       {
         type: "register-frame",
@@ -59,10 +60,13 @@ export class IFrameProtocol {
 
   // Messages are dispatched from the client directly to the instance iframe
   dispatch(message: SandpackMessage): void {
+    console.log('client - about to protocol dispatch: ', message)
     if (!this.frameWindow) {
+      console.log('client - this.frameWindow not truthy: ', this.frameWindow)
       return;
     }
 
+    console.log('client - posting message to frameWindow: ', this.origin)
     this.frameWindow.postMessage(
       {
         $id: this.channelId,

@@ -364,6 +364,8 @@ export class SandpackProviderClass extends React.PureComponent<
         showErrorScreen: !this.errorScreenRegistered.current,
         showLoadingScreen: !this.loadingScreenRegistered.current,
         reactDevTools: this.state.reactDevTools,
+        cacheUrl: this.props.options?.cacheUrl,
+        sandboxId: this.props.options?.sandboxId,
         customNpmRegistries: this.props.customSetup?.npmRegistries?.map(
           (config) =>
             ({
@@ -373,6 +375,7 @@ export class SandpackProviderClass extends React.PureComponent<
         ),
       }
     );
+    console.log('new client created: ', client)
 
     /**
      * Subscribe inside the context with the first client that gets instantiated.
@@ -423,7 +426,9 @@ export class SandpackProviderClass extends React.PureComponent<
   };
 
   runSandpack = (): void => {
+    console.log('running sandpack')
     Object.keys(this.preregisteredIframes).forEach((clientId) => {
+      console.log('clientId: ', clientId)
       const iframe = this.preregisteredIframes[clientId];
       this.clients[clientId] = this.createClient(iframe, clientId);
     });
